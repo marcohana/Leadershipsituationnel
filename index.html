@@ -1,0 +1,759 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <title>Test du Management Situationnel</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Segoe UI', Arial, sans-serif;
+      background: linear-gradient(135deg, #f0f4f8 0%, #e8eef5 100%);
+      min-height: 100vh;
+      padding: 40px 20px;
+      color: #2d3748;
+    }
+    .container {
+      max-width: 950px;
+      margin: 0 auto;
+      background: white;
+      border-radius: 16px;
+      box-shadow: 0 10px 40px rgba(0,0,0,0.12);
+      overflow: hidden;
+    }
+    .header {
+      background: linear-gradient(135deg, #1a3a5c 0%, #2c6fad 100%);
+      padding: 40px;
+      color: white;
+      text-align: center;
+    }
+    .header h1 { font-size: 2em; font-weight: 700; margin-bottom: 10px; }
+    .header p { font-size: 0.95em; opacity: 0.85; max-width: 650px; margin: 0 auto; line-height: 1.6; }
+    .consignes {
+      background: #eaf3fb;
+      border-left: 5px solid #2c6fad;
+      margin: 30px 40px;
+      padding: 15px 20px;
+      border-radius: 0 8px 8px 0;
+      font-size: 0.92em;
+      color: #1a3a5c;
+      line-height: 1.6;
+    }
+    .form-section { padding: 0 40px 40px; }
+
+    /* Style des situations */
+    .situation {
+      margin-bottom: 28px;
+      border: 1px solid #e2e8f0;
+      border-radius: 12px;
+      overflow: hidden;
+    }
+    .situation-header {
+      background: linear-gradient(135deg, #1a3a5c, #2c6fad);
+      color: white;
+      padding: 12px 20px;
+      font-weight: 700;
+      font-size: 0.9em;
+    }
+    .situation-texte {
+      background: #f8fafc;
+      padding: 15px 20px;
+      font-size: 0.9em;
+      line-height: 1.7;
+      color: #2d3748;
+      border-bottom: 1px solid #e2e8f0;
+    }
+    .situation-texte strong { color: #1a3a5c; }
+    .choix-liste { padding: 15px 20px; }
+    .choix-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+      padding: 10px 12px;
+      border-radius: 8px;
+      margin-bottom: 8px;
+      cursor: pointer;
+      transition: background 0.2s;
+      border: 2px solid transparent;
+    }
+    .choix-item:hover { background: #f0f7ff; border-color: #2c6fad; }
+    .choix-item input[type="radio"] {
+      margin-top: 3px;
+      width: 16px;
+      height: 16px;
+      accent-color: #2c6fad;
+      cursor: pointer;
+      flex-shrink: 0;
+    }
+    .choix-label {
+      font-size: 0.88em;
+      line-height: 1.6;
+      color: #2d3748;
+      cursor: pointer;
+    }
+    .choix-lettre {
+      font-weight: 700;
+      color: #2c6fad;
+      min-width: 20px;
+      flex-shrink: 0;
+    }
+
+    /* Boutons */
+    .btn-container { display: flex; gap: 15px; justify-content: center; margin-top: 30px; }
+    .btn { padding: 14px 35px; border: none; border-radius: 50px; cursor: pointer; font-size: 1em; font-weight: 600; transition: all 0.3s; }
+    .btn-primary { background: linear-gradient(135deg, #1a3a5c, #2c6fad); color: white; box-shadow: 0 4px 15px rgba(44,111,173,0.4); }
+    .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(44,111,173,0.5); }
+
+    /* Résultats */
+    #resultat { display: none; margin: 30px 0 10px; }
+    .scores-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 15px; margin-bottom: 25px; }
+    .score-card { border-radius: 12px; padding: 20px; text-align: center; color: white; }
+    .score-card .label { font-size: 0.8em; opacity: 0.85; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 8px; }
+    .score-card .score-val { font-size: 2em; font-weight: 700; }
+    .score-card .max { font-size: 0.85em; opacity: 0.75; }
+    .card-m1 { background: linear-gradient(135deg, #1a3a5c, #2c6fad); }
+    .card-m2 { background: linear-gradient(135deg, #1a6645, #27ae60); }
+    .card-m3 { background: linear-gradient(135deg, #7d6608, #f1c40f); color: #2d3748; }
+    .card-m4 { background: linear-gradient(135deg, #6c3483, #9b59b6); }
+
+    .style-box {
+      background: linear-gradient(135deg, #fefefe, #f0f7ff);
+      border: 2px solid #2c6fad;
+      border-radius: 12px;
+      padding: 25px;
+      margin-bottom: 25px;
+      text-align: center;
+    }
+    .style-box h3 { font-size: 1.3em; color: #1a3a5c; margin-bottom: 8px; }
+    .style-box .tagline { font-size: 1em; color: #2c6fad; font-style: italic; margin-bottom: 12px; font-weight: 600; }
+    .style-box .detail { font-size: 0.92em; color: #4a5568; line-height: 1.7; }
+
+    .adaptabilite-box {
+      background: linear-gradient(135deg, #fefefe, #f0fff4);
+      border: 2px solid #27ae60;
+      border-radius: 12px;
+      padding: 25px;
+      margin-bottom: 25px;
+      text-align: center;
+    }
+    .adaptabilite-box h3 { font-size: 1.3em; color: #1a6645; margin-bottom: 8px; }
+    .adaptabilite-box .score-adapt { font-size: 2em; font-weight: 700; color: #27ae60; }
+    .adaptabilite-box .detail { font-size: 0.92em; color: #4a5568; line-height: 1.7; margin-top: 10px; }
+
+    .recap-table { width: 100%; border-collapse: collapse; border-radius: 12px; overflow: hidden; box-shadow: 0 2px 10px rgba(0,0,0,0.08); margin-top: 10px; }
+    .recap-table thead tr { background: linear-gradient(135deg, #1a3a5c, #2c6fad); color: white; }
+    .recap-table th { padding: 12px 15px; text-align: left; font-weight: 600; }
+    .recap-table td { padding: 11px 15px; text-align: left; border-bottom: 1px solid #e2e8f0; }
+    .recap-table tr:last-child td { border-bottom: none; }
+    .recap-table tr.active-style { background: #d4edff; font-weight: 700; }
+    .section-title { font-size: 1em; text-transform: uppercase; letter-spacing: 0.5px; color: #1a3a5c; font-weight: 700; margin-bottom: 15px; padding-bottom: 8px; border-bottom: 2px solid #e2e8f0; }
+    .erreur { background: #fde8e8; border-left: 5px solid #e74c3c; padding: 15px 20px; border-radius: 0 8px 8px 0; color: #c0392b; font-weight: 600; }
+
+    @media (max-width: 600px) {
+      .header { padding: 25px 20px; }
+      .form-section { padding: 0 15px 30px; }
+      .consignes { margin: 20px 15px; }
+      .scores-grid { grid-template-columns: 1fr 1fr; }
+    }
+  </style>
+</head>
+<body>
+<div class="container" id="main-container">
+
+  <div class="header">
+    <h1>🧭 Test du Management Situationnel</h1>
+    <p>Identifiez votre style de management dominant et votre capacité d'adaptation selon les situations.</p>
+  </div>
+
+  <div class="consignes">
+    <strong>Consignes :</strong> Pour chacune des 12 situations ci-dessous, lisez attentivement le contexte puis choisissez <strong>la réponse (A, B, C ou D)</strong> qui correspond le mieux à ce que vous feriez réellement. Il n'y a pas de bonne ou mauvaise réponse.
+  </div>
+
+  <div class="form-section">
+    <form id="questionnaire">
+
+      <!-- SITUATION 1 -->
+      <div class="situation">
+        <div class="situation-header">Situation 1</div>
+        <div class="situation-texte">
+          <strong>Vos collaborateurs n'ont pas été sensibles à vos échanges amicaux, ni à votre évidente préoccupation de leur bien-être ; leurs performances déclinent rapidement.</strong>
+        </div>
+        <div class="choix-liste">
+          <label class="choix-item">
+            <input type="radio" name="s1" value="A">
+            <span class="choix-lettre">A</span>
+            <span class="choix-label">Vous insistez sur les méthodes de travail et les procédures en usage dans le service. Vous vous rendez disponible pour un échange avec eux, vous le manifestez clairement, mais vous ne l'imposez pas.</span>
+          </label>
+          <label class="choix-item">
+            <input type="radio" name="s1" value="B">
+            <span class="choix-lettre">B</span>
+            <span class="choix-label">Vous vous entretenez avec vos collaborateurs avant de leur fixer des objectifs adaptés.</span>
+          </label>
+          <label class="choix-item">
+            <input type="radio" name="s1" value="C">
+            <span class="choix-lettre">C</span>
+            <span class="choix-label">Vous choisissez de ne pas intervenir pour le moment.</span>
+          </label>
+          <label class="choix-item">
+            <input type="radio" name="s1" value="D">
+            <span class="choix-lettre">D</span>
+            <span class="choix-label">Vous leur rappelez les méthodes de travail et les procédures en usage dans le service et vous insistez sur la nécessité d'accomplir les tâches qui leur incombent.</span>
+          </label>
+        </div>
+      </div>
+
+      <!-- SITUATION 2 -->
+      <div class="situation">
+        <div class="situation-header">Situation 2</div>
+        <div class="situation-texte">
+          <strong>Les performances de vos collaborateurs se sont nettement améliorées. Vous avez fait tout ce qui était possible pour que tous connaissent leurs rôles, leurs responsabilités, leurs objectifs et les critères de mesure de leurs performances.</strong>
+        </div>
+        <div class="choix-liste">
+          <label class="choix-item">
+            <input type="radio" name="s2" value="A">
+            <span class="choix-lettre">A</span>
+            <span class="choix-label">Vous ouvrez le dialogue avec eux, mais vous continuez à vous assurer que chacun est conscient de son rôle et de ses objectifs.</span>
+          </label>
+          <label class="choix-item">
+            <input type="radio" name="s2" value="B">
+            <span class="choix-lettre">B</span>
+            <span class="choix-label">Vous choisissez de ne rien faire de particulier.</span>
+          </label>
+          <label class="choix-item">
+            <input type="radio" name="s2" value="C">
+            <span class="choix-lettre">C</span>
+            <span class="choix-label">Vous vous attachez à créer une équipe de travail consciente de l'importance de son rôle et de son engagement.</span>
+          </label>
+          <label class="choix-item">
+            <input type="radio" name="s2" value="D">
+            <span class="choix-lettre">D</span>
+            <span class="choix-label">Vous insistez sur l'importance des tâches à accomplir et du respect des délais.</span>
+          </label>
+        </div>
+      </div>
+
+           <!-- SITUATION 3 -->
+      <div class="situation">
+        <div class="situation-header">Situation 3</div>
+        <div class="situation-texte">
+          <strong>Un groupe de vos collaborateurs, qui était supposé se débrouiller seul, est actuellement incapable de résoudre un problème par lui-même.</strong>
+        </div>
+        <div class="choix-liste">
+          <label class="choix-item">
+            <input type="radio" name="s3" value="A">
+            <span class="choix-lettre">A</span>
+            <span class="choix-label">Vous cherchez avec ce groupe la solution du problème.</span>
+          </label>
+          <label class="choix-item">
+            <input type="radio" name="s3" value="B">
+            <span class="choix-lettre">B</span>
+            <span class="choix-label">Vous laissez ce groupe résoudre le problème lui-même.</span>
+          </label>
+          <label class="choix-item">
+            <input type="radio" name="s3" value="C">
+            <span class="choix-lettre">C</span>
+            <span class="choix-label">Vous agissez rapidement et fermement pour rectifier et remettre ce groupe sur la bonne voie.</span>
+          </label>
+          <label class="choix-item">
+            <input type="radio" name="s3" value="D">
+            <span class="choix-lettre">D</span>
+            <span class="choix-label">Vous aidez ce groupe à travailler sur le problème et vous encouragez ses efforts pour qu'il trouve lui-même la solution.</span>
+          </label>
+        </div>
+      </div>
+
+      <!-- SITUATION 4 -->
+      <div class="situation">
+        <div class="situation-header">Situation 4</div>
+        <div class="situation-texte">
+          <strong>Vous envisagez un changement important dans votre service. Tous les indicateurs dont vous disposez montrent que vos collaborateurs accomplissent d'excellentes performances. Ils adhèrent totalement à la nécessité de ce changement.</strong>
+        </div>
+        <div class="choix-liste">
+          <label class="choix-item">
+            <input type="radio" name="s4" value="A">
+            <span class="choix-lettre">A</span>
+            <span class="choix-label">Vous associez vos collaborateurs à la mise en œuvre de ce changement et vous le mettez en contrôlant soigneusement sa réalisation.</span>
+          </label>
+          <label class="choix-item">
+            <input type="radio" name="s4" value="B">
+            <span class="choix-lettre">B</span>
+            <span class="choix-label">Vous annoncez le changement et vous laissez vos collaborateurs déterminer par eux-mêmes les orientations à prendre pour mener à bien ce changement.</span>
+          </label>
+          <label class="choix-item">
+            <input type="radio" name="s4" value="C">
+            <span class="choix-lettre">C</span>
+            <span class="choix-label">Vous travaillez avec vos collaborateurs à l'implantation de ce changement, mais vous les laissez conduire la mise en œuvre par eux-mêmes.</span>
+          </label>
+          <label class="choix-item">
+            <input type="radio" name="s4" value="D">
+            <span class="choix-lettre">D</span>
+            <span class="choix-label">Vous tenez compte des suggestions de vos collaborateurs, mais vous dirigez vous-mêmes soigneusement le changement.</span>
+          </label>
+        </div>
+      </div>
+
+      <!-- SITUATION 5 -->
+      <div class="situation">
+        <div class="situation-header">Situation 5</div>
+        <div class="situation-texte">
+          <strong>Les performances de votre équipe ont baissé durant ces derniers mois. Vos collaborateurs semblent ne plus se soucier d'atteindre les objectifs. Dans le passé, une redéfinition des responsabilités a permis d'améliorer la situation.</strong>
+        </div>
+        <div class="choix-liste">
+          <label class="choix-item">
+            <input type="radio" name="s5" value="A">
+            <span class="choix-lettre">A</span>
+            <span class="choix-label">Vous leur rappelez de façon continue les objectifs et vous leur signalez qu'ils doivent les atteindre dans les délais impartis.</span>
+          </label>
+          <label class="choix-item">
+            <input type="radio" name="s5" value="B">
+            <span class="choix-lettre">B</span>
+            <span class="choix-label">Vous permettez à vos collaborateurs de formuler leurs propres orientations.</span>
+          </label>
+          <label class="choix-item">
+            <input type="radio" name="s5" value="C">
+            <span class="choix-lettre">C</span>
+            <span class="choix-label">Vous vous attachez à créer une équipe de travail consciente de l'importance de son rôle et de son engagement.</span>
+          </label>
+          <label class="choix-item">
+            <input type="radio" name="s5" value="D">
+            <span class="choix-lettre">D</span>
+            <span class="choix-label">Vous tenez compte d'éventuelles suggestions de la part de vos collaborateurs, mais vous surveillez attentivement la réalisation des objectifs.</span>
+          </label>
+        </div>
+      </div>
+
+      <!-- SITUATION 6 -->
+      <div class="situation">
+        <div class="situation-header">Situation 6</div>
+        <div class="situation-texte">
+          <strong>Vous êtes nommé responsable d'une unité de travail qui était dirigée auparavant de façon très stricte. Votre prédécesseur exerçait un contrôle très précis. Vous souhaitez maintenir cette organisation, mais vous aimeriez commencer à créer une ambiance plus humaine.</strong>
+        </div>
+        <div class="choix-liste">
+          <label class="choix-item">
+            <input type="radio" name="s6" value="A">
+            <span class="choix-lettre">A</span>
+            <span class="choix-label">Vous vous attachez à créer une équipe de travail consciente de l'importance de son rôle et de son engagement.</span>
+          </label>
+          <label class="choix-item">
+            <input type="radio" name="s6" value="B">
+            <span class="choix-lettre">B</span>
+            <span class="choix-label">Vous associez progressivement les membres de cette unité aux décisions, mais vous contrôlez soigneusement la bonne réalisation des objectifs.</span>
+          </label>
+          <label class="choix-item">
+            <input type="radio" name="s6" value="C">
+            <span class="choix-lettre">C</span>
+            <span class="choix-label">Vous choisissez de ne pas intervenir pour le moment.</span>
+          </label>
+          <label class="choix-item">
+            <input type="radio" name="s6" value="D">
+            <span class="choix-lettre">D</span>
+            <span class="choix-label">Vous rappelez l'importance des tâches à accomplir et du respect des délais.</span>
+          </label>
+        </div>
+      </div>
+
+      <!-- SITUATION 7 -->
+      <div class="situation">
+        <div class="situation-header">Situation 7</div>
+        <div class="situation-texte">
+          <strong>Vous envisagez une importante évolution de votre service. Plusieurs d'entre eux ont fait des propositions quant à la mise en œuvre de ce changement. Votre équipe de travail est très efficace et a fait montre de bonnes capacités d'adaptation dans son travail actuel.</strong>
+        </div>
+        <div class="choix-liste">
+          <label class="choix-item">
+            <input type="radio" name="s7" value="A">
+            <span class="choix-lettre">A</span>
+            <span class="choix-label">Vous organisez le changement et vous le mettez en contrôlant attentivement sa mise en œuvre.</span>
+          </label>
+          <label class="choix-item">
+            <input type="radio" name="s7" value="B">
+            <span class="choix-lettre">B</span>
+            <span class="choix-label">Vous travaillez avec vos collaborateurs à l'implantation de ce changement, mais vous les laissez conduire la mise en œuvre par eux-mêmes.</span>
+          </label>
+          <label class="choix-item">
+            <input type="radio" name="s7" value="C">
+            <span class="choix-lettre">C</span>
+            <span class="choix-label">Vous tenez le plus grand compte des suggestions de vos collaborateurs, mais vous réalisez la mise en œuvre.</span>
+          </label>
+          <label class="choix-item">
+            <input type="radio" name="s7" value="D">
+            <span class="choix-lettre">D</span>
+            <span class="choix-label">Vous laissez vos collaborateurs mener à bien cette nouvelle organisation.</span>
+          </label>
+        </div>
+      </div>
+
+      <!-- SITUATION 8 -->
+      <div class="situation">
+        <div class="situation-header">Situation 8</div>
+        <div class="situation-texte">
+          <strong>Les performances de votre équipe de travail sont excellentes ; les relations entre les personnes aussi. Vous pratiquez une large délégation, mais vous n'êtes pas sûr d'être dans le vrai car vous manquez d'informations détaillées.</strong>
+        </div>
+        <div class="choix-liste">
+          <label class="choix-item">
+            <input type="radio" name="s8" value="A">
+            <span class="choix-lettre">A</span>
+            <span class="choix-label">Vous parlez de la situation avec les membres de votre équipe avant d'introduire les changements que vous jugerez nécessaires.</span>
+          </label>
+          <label class="choix-item">
+            <input type="radio" name="s8" value="B">
+            <span class="choix-lettre">B</span>
+            <span class="choix-label">Vous choisissez de ne pas modifier cette situation dans l'immédiat.</span>
+          </label>
+          <label class="choix-item">
+            <input type="radio" name="s8" value="C">
+            <span class="choix-lettre">C</span>
+            <span class="choix-label">Vous prenez les mesures nécessaires pour amener vos collaborateurs à travailler dans une ligne bien définie.</span>
+          </label>
+          <label class="choix-item">
+            <input type="radio" name="s8" value="D">
+            <span class="choix-lettre">D</span>
+            <span class="choix-label">Vous associez les membres de ce service à une définition des responsabilités et des rôles.</span>
+          </label>
+        </div>
+      </div>
+
+      <!-- SITUATION 9 -->
+      <div class="situation">
+        <div class="situation-header">Situation 9</div>
+        <div class="situation-texte">
+          <strong>Votre supérieur vous a nommé pour diriger un groupe de travail qui doit préparer un changement important. Le travail de ce groupe est très en retard sur les prévisions. Les membres ne semblent pas avoir une idée très claire des objectifs. L'absentéisme aux réunions est élevé et celles-ci ont tendance à devenir des discussions de salon. Le groupe a cependant toutes les capacités nécessaires pour mener à bien la tâche qui lui a été confiée.</strong>
+        </div>
+        <div class="choix-liste">
+          <label class="choix-item">
+            <input type="radio" name="s9" value="A">
+            <span class="choix-lettre">A</span>
+            <span class="choix-label">Vous laissez le groupe résoudre ce problème par lui-même.</span>
+          </label>
+          <label class="choix-item">
+            <input type="radio" name="s9" value="B">
+            <span class="choix-lettre">B</span>
+            <span class="choix-label">Vous tenez compte des suggestions des membres du groupe, mais vous veillez à la bonne réalisation des objectifs.</span>
+          </label>
+          <label class="choix-item">
+            <input type="radio" name="s9" value="C">
+            <span class="choix-lettre">C</span>
+            <span class="choix-label">Vous redéfinissez les objectifs et vous exercez une surveillance attentive.</span>
+          </label>
+          <label class="choix-item">
+            <input type="radio" name="s9" value="D">
+            <span class="choix-lettre">D</span>
+            <span class="choix-label">Vous permettez au groupe de redéfinir ses objectifs, sans exercer trop de pression.</span>
+          </label>
+        </div>
+      </div>
+
+               <!-- SITUATION 10 -->
+          <div class="situation">
+            <div class="situation-header">Situation 10</div>
+            <div class="situation-texte">
+              <strong>Vos collaborateurs, qui sont en général capables de prendre des responsabilités, n'intègrent pas la récente redéfinition des règles et des procédures sans perdre le contrôle de l'opération.</strong>
+            </div>
+            <div class="choix-liste">
+              <label class="choix-item">
+                <input type="radio" name="s10" value="A">
+                <span class="choix-lettre">A</span>
+                <span class="choix-label">Vous associez vos collaborateurs à la redéfinition des règles et des procédures, sans perdre le contrôle de l'opération.</span>
+              </label>
+              <label class="choix-item">
+                <input type="radio" name="s10" value="B">
+                <span class="choix-lettre">B</span>
+                <span class="choix-label">Vous redéfinissez à nouveau les règles et les procédures et vous surveillez étroitement leur bonne application.</span>
+              </label>
+              <label class="choix-item">
+                <input type="radio" name="s10" value="C">
+                <span class="choix-lettre">C</span>
+                <span class="choix-label">Vous évitez tout conflit en laissant le temps faire son œuvre.</span>
+              </label>
+              <label class="choix-item">
+                <input type="radio" name="s10" value="D">
+                <span class="choix-lettre">D</span>
+                <span class="choix-label">Vous expliquez les raisons du changement, vous tenez compte des suggestions de vos collaborateurs mais vous assurez du respect de nouvelles règles.</span>
+              </label>
+            </div>
+          </div>
+
+          <!-- SITUATION 11 -->
+          <div class="situation">
+            <div class="situation-header">Situation 11</div>
+            <div class="situation-texte">
+              <strong>Vous venez d'être nommé à un nouveau poste. Votre prédécesseur s'occupait peu des affaires du service. Les collaborateurs semblent avoir effectué un travail permanent et s'être appropriés leurs tâches et les orientations du service. Ils ont de bonnes relations entre eux.</strong>
+            </div>
+            <div class="choix-liste">
+              <label class="choix-item">
+                <input type="radio" name="s11" value="A">
+                <span class="choix-lettre">A</span>
+                <span class="choix-label">Vous prenez les mesures nécessaires pour amener vos collaborateurs à travailler dans une ligne bien définie.</span>
+              </label>
+              <label class="choix-item">
+                <input type="radio" name="s11" value="B">
+                <span class="choix-lettre">B</span>
+                <span class="choix-label">Vous associez les membres de ce service à vos prises de décisions et vous stimulez les contributions positives.</span>
+              </label>
+              <label class="choix-item">
+                <input type="radio" name="s11" value="C">
+                <span class="choix-lettre">C</span>
+                <span class="choix-label">Vous parlez avec vos collaborateurs des résultats obtenus dans le passé et vous envisagez d'adopter de nouvelles méthodes de travail.</span>
+              </label>
+              <label class="choix-item">
+                <input type="radio" name="s11" value="D">
+                <span class="choix-lettre">D</span>
+                <span class="choix-label">Vous continuez à laisser le groupe travailler par lui-même.</span>
+              </label>
+            </div>
+          </div>
+
+          <!-- SITUATION 12 -->
+          <div class="situation">
+            <div class="situation-header">Situation 12</div>
+            <div class="situation-texte">
+              <strong>Vous venez d'apprendre qu'une récente difficulté relationnelle se pose dans votre service. Vos collaborateurs ont obtenu jusqu'ici d'excellents résultats et témoignent de leurs capacités à atteindre des objectifs à long terme. Ils sont tous très qualifiés pour leur travail.</strong>
+            </div>
+            <div class="choix-liste">
+              <label class="choix-item">
+                <input type="radio" name="s12" value="A">
+                <span class="choix-lettre">A</span>
+                <span class="choix-label">Vous soumettez une solution à vos collaborateurs et vous examinez avec eux la nécessité d'adopter de nouvelles méthodes de travail.</span>
+              </label>
+              <label class="choix-item">
+                <input type="radio" name="s12" value="B">
+                <span class="choix-lettre">B</span>
+                <span class="choix-label">Vous choisissez, dans l'immédiat, de laisser les membres de votre service résoudre ce problème par eux-mêmes.</span>
+              </label>
+              <label class="choix-item">
+                <input type="radio" name="s12" value="C">
+                <span class="choix-lettre">C</span>
+                <span class="choix-label">Vous agissez rapidement et fermement pour corriger et remettre vos collaborateurs sur la bonne voie.</span>
+              </label>
+              <label class="choix-item">
+                <input type="radio" name="s12" value="D">
+                <span class="choix-lettre">D</span>
+                <span class="choix-label">Vous vous associez à une discussion en commun du problème et vous leur offrez votre aide pour le résoudre.</span>
+              </label>
+            </div>
+          </div>
+
+          <div class="btn-container">
+            <button type="button" class="btn btn-primary" onclick="calculerScores()">📊 Voir mes résultats</button>
+          </div>
+        </form>
+
+        <div id="resultat"></div>
+      </div>
+    </div>
+
+<script>
+   // ── TABLEAU 1 : MODES DE MANAGEMENT DOMINANT ──────────────
+  const tableau1 = {
+    s1:  { M1:"A", M2:"C", M3:"B", M4:"D" },
+    s2:  { M1:"D", M2:"A", M3:"C", M4:"B" },
+    s3:  { M1:"C", M2:"A", M3:"D", M4:"B" },
+    s4:  { M1:"B", M2:"D", M3:"A", M4:"C" },
+    s5:  { M1:"C", M2:"B", M3:"D", M4:"A" },
+    s6:  { M1:"B", M2:"D", M3:"A", M4:"C" },
+    s7:  { M1:"A", M2:"C", M3:"B", M4:"D" },
+    s8:  { M1:"C", M2:"B", M3:"D", M4:"A" },
+    s9:  { M1:"C", M2:"B", M3:"D", M4:"A" },
+    s10: { M1:"B", M2:"D", M3:"A", M4:"C" },
+    s11: { M1:"A", M2:"C", M3:"B", M4:"D" },
+    s12: { M1:"C", M2:"A", M3:"D", M4:"B" }
+  };
+
+  // ── TABLEAU 2 : ADAPTABILITE ───────────────────────────────
+  const tableau2 = {
+    s1:  { A:+2, B:-1, C:+1, D:-2 },
+    s2:  { A:+2, B:-2, C:+1, D:-1 },
+    s3:  { A:+1, B:-1, C:-2, D:+2 },
+    s4:  { A:+1, B:-2, C:+2, D:-1 },
+    s5:  { A:-2, B:+1, C:+2, D:-1 },
+    s6:  { A:-1, B:+1, C:-2, D:+2 },
+    s7:  { A:-2, B:+2, C:-1, D:+1 },
+    s8:  { A:+2, B:-1, C:-2, D:+1 },
+    s9:  { A:-2, B:+1, C:+2, D:-1 },
+    s10: { A:+1, B:-2, C:-1, D:+2 },
+    s11: { A:-2, B:+2, C:-1, D:+1 },
+    s12: { A:-1, B:+2, C:-2, D:+1 }
+  };
+
+  // ── DESCRIPTIONS DES MODES ─────────────────────────────────
+  const modeDescriptions = {
+    M1: {
+      nom: "M1 — Directif", emoji: "⚙️",
+      tagline: "Structure, contrôle, directive",
+      detail: "Vous adoptez un style très centré sur la tâche avec peu de soutien relationnel. Vous définissez clairement les rôles, les objectifs et les procédures. Ce style est adapté aux collaborateurs peu compétents et peu motivés qui ont besoin d'un cadre clair et d'instructions précises.",
+      color: "#922b21"
+    },
+    M2: {
+      nom: "M2 — Persuasif", emoji: "🗣️",
+      tagline: "Explique, convainc, motive",
+      detail: "Vous combinez un haut niveau de directives avec un fort soutien relationnel. Vous expliquez vos décisions, vous cherchez à convaincre et à motiver. Ce style est adapté aux collaborateurs peu compétents mais motivés qui ont besoin de guidance et d'encouragements.",
+      color: "#1a6645"
+    },
+    M3: {
+      nom: "M3 — Participatif", emoji: "🤝",
+      tagline: "Écoute, partage, associe",
+      detail: "Vous favorisez la participation et la prise de décision partagée avec peu de directives formelles. Vous soutenez et encouragez l'autonomie. Ce style est adapté aux collaborateurs compétents mais manquant de confiance en eux ou de motivation.",
+      color: "#7d6608"
+    },
+    M4: {
+      nom: "M4 — Délégatif", emoji: "🚀",
+      tagline: "Délègue, fait confiance, autonomise",
+      detail: "Vous déléguez largement la prise de décision et la responsabilité. Vous intervenez peu car vos collaborateurs sont compétents et motivés. Ce style est adapté aux collaborateurs très compétents et très motivés capables de travailler en toute autonomie.",
+      color: "#6c3483"
+    }
+  };
+
+  // ── DESCRIPTION ADAPTABILITE ───────────────────────────────
+  function descriptionAdaptabilite(score) {
+    if (score >= 16) return {
+      niveau: "Excellente", emoji: "🌟",
+      detail: "Vous faites preuve d'une très grande flexibilité dans votre management. Vous adaptez naturellement votre style aux besoins de chaque situation et de chaque collaborateur."
+    };
+    if (score >= 12) return {
+      niveau: "Bonne", emoji: "✅",
+      detail: "Vous montrez une bonne capacité d'adaptation. Vous savez généralement ajuster votre style selon les situations, même si quelques axes d'amélioration restent possibles."
+    };
+    if (score >= 8) return {
+      niveau: "Moyenne", emoji: "⚠️",
+      detail: "Votre adaptabilité est modérée. Vous avez tendance à privilégier un style dominant quelle que soit la situation, ce qui peut limiter votre efficacité dans certains contextes."
+    };
+    return {
+      niveau: "Faible", emoji: "🔴",
+      detail: "Votre style de management est peu flexible. Il serait bénéfique de travailler sur votre capacité à adapter votre approche selon les besoins de vos collaborateurs et des situations."
+    };
+  }
+
+  // ── CALCUL DES SCORES ──────────────────────────────────────
+  function calculerScores() {
+    const scores = { M1: 0, M2: 0, M3: 0, M4: 0 };
+    let totalAdaptBrut = 0;
+    let toutesReponses = true;
+
+    for (let i = 1; i <= 12; i++) {
+      const reponse = document.querySelector('input[name="s' + i + '"]:checked');
+      if (!reponse) {
+        toutesReponses = false;
+        break;
+      }
+      const lettre = reponse.value;
+      const sit = "s" + i;
+
+      // Tableau 1 : incrémenter le mode correspondant
+      for (const mode of ["M1","M2","M3","M4"]) {
+        if (tableau1[sit][mode] === lettre) {
+          scores[mode]++;
+        }
+      }
+
+      // Tableau 2 : additionner les points d adaptabilite
+      totalAdaptBrut += tableau2[sit][lettre];
+    }
+
+    const resultat = document.getElementById("resultat");
+
+    if (!toutesReponses) {
+      resultat.style.display = "block";
+      resultat.innerHTML = '<div class="erreur">⚠️ Veuillez répondre à toutes les situations avant de calculer vos résultats.</div>';
+      return;
+    }
+
+    // Score adaptabilite sur 20
+    // Min = -24, Max = +24 => ramene a 0-20
+    const scoreAdaptSur20 = Math.round(((totalAdaptBrut + 24) / 48) * 20);
+
+    // Trier les modes par score décroissant
+    const scoresTries = Object.entries(scores).sort(function(a, b) {
+      return b[1] - a[1];
+    });
+    const mode1 = scoresTries[0][0];
+    const mode2 = scoresTries[1][0];
+    const m1Info = modeDescriptions[mode1];
+    const m2Info = modeDescriptions[mode2];
+    const adapt  = descriptionAdaptabilite(scoreAdaptSur20);
+
+    resultat.style.display = "block";
+
+    resultat.innerHTML =
+      '<div class="section-title">📊 Vos résultats — Management Situationnel</div>' +
+
+      '<div class="scores-grid">' +
+        '<div class="score-card card-m1">' +
+          '<div class="label">⚙️ M1 Directif</div>' +
+          '<div class="score-val">' + scores.M1 + '</div>' +
+          '<div class="max">/ 12</div>' +
+        '</div>' +
+        '<div class="score-card card-m2">' +
+          '<div class="label">🗣️ M2 Persuasif</div>' +
+          '<div class="score-val">' + scores.M2 + '</div>' +
+          '<div class="max">/ 12</div>' +
+        '</div>' +
+        '<div class="score-card card-m3">' +
+          '<div class="label">🤝 M3 Participatif</div>' +
+          '<div class="score-val">' + scores.M3 + '</div>' +
+          '<div class="max">/ 12</div>' +
+        '</div>' +
+        '<div class="score-card card-m4">' +
+          '<div class="label">🚀 M4 Délégatif</div>' +
+          '<div class="score-val">' + scores.M4 + '</div>' +
+          '<div class="max">/ 12</div>' +
+        '</div>' +
+      '</div>' +
+
+      '<div class="style-box" style="border-color:' + m1Info.color + ';">' +
+        '<h3 style="color:' + m1Info.color + ';">' + m1Info.emoji + ' Style dominant : ' + m1Info.nom + '</h3>' +
+        '<div class="tagline" style="color:' + m1Info.color + ';">' + m1Info.tagline + '</div>' +
+        '<div class="detail">' + m1Info.detail + '</div>' +
+      '</div>' +
+
+      '<div class="style-box" style="border-color:' + m2Info.color + ';">' +
+        '<h3 style="color:' + m2Info.color + ';">' + m2Info.emoji + ' Style secondaire : ' + m2Info.nom + '</h3>' +
+        '<div class="tagline" style="color:' + m2Info.color + ';">' + m2Info.tagline + '</div>' +
+        '<div class="detail">' + m2Info.detail + '</div>' +
+      '</div>' +
+
+      '<div class="adaptabilite-box">' +
+        '<h3>🔄 Votre adaptabilité managériale</h3>' +
+        '<div class="score-adapt">' + adapt.emoji + ' ' + scoreAdaptSur20 + ' / 20 — ' + adapt.niveau + '</div>' +
+        '<div class="detail">' + adapt.detail + '</div>' +
+      '</div>' +
+
+      '<div class="section-title">Récapitulatif des styles de management</div>' +
+      '<table class="recap-table">' +
+        '<thead>' +
+          '<tr>' +
+            '<th>Style</th>' +
+            '<th>En 3 mots</th>' +
+            '<th>Score</th>' +
+            '<th>Profil collaborateur adapté</th>' +
+          '</tr>' +
+        '</thead>' +
+        '<tbody>' +
+          '<tr class="' + (mode1 === "M1" ? "active-style" : "") + '">' +
+            '<td>⚙️ M1 — Directif ' + (mode1 === "M1" ? "← Dominant" : "") + '</td>' +
+            '<td>Structure, contrôle, directive</td>' +
+            '<td>' + scores.M1 + ' / 12</td>' +
+            '<td>Peu compétent, peu motivé</td>' +
+          '</tr>' +
+          '<tr class="' + (mode1 === "M2" ? "active-style" : "") + '">' +
+            '<td>🗣️ M2 — Persuasif ' + (mode1 === "M2" ? "← Dominant" : "") + '</td>' +
+            '<td>Explique, convainc, motive</td>' +
+            '<td>' + scores.M2 + ' / 12</td>' +
+            '<td>Peu compétent, mais motivé</td>' +
+          '</tr>' +
+          '<tr class="' + (mode1 === "M3" ? "active-style" : "") + '">' +
+            '<td>🤝 M3 — Participatif ' + (mode1 === "M3" ? "← Dominant" : "") + '</td>' +
+            '<td>Écoute, partage, associe</td>' +
+            '<td>' + scores.M3 + ' / 12</td>' +
+            '<td>Compétent, mais peu motivé</td>' +
+          '</tr>' +
+          '<tr class="' + (mode1 === "M4" ? "active-style" : "") + '">' +
+            '<td>🚀 M4 — Délégatif ' + (mode1 === "M4" ? "← Dominant" : "") + '</td>' +
+            '<td>Délègue, fait confiance, autonomise</td>' +
+            '<td>' + scores.M4 + ' / 12</td>' +
+            '<td>Très compétent, très motivé</td>' +
+          '</tr>' +
+        '</tbody>' +
+      '</table>';
+  }
+
+</script>
+</body>
+</html>
